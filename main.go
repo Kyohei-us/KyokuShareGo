@@ -86,7 +86,7 @@ func CreateKyokuForArtist(db *gorm.DB, artistName string, kyokuTitle string) err
 
 func main() {
 	godotenv.Load(".env")
-	db_conn_string, ok := os.LookupEnv("DATABASE_CONNECTION_STRING")
+	db_conn_string, ok := os.LookupEnv("DATABASE_URL")
 	if !ok {
 		fmt.Println("ERROR: DB Connection String not found")
 		return
