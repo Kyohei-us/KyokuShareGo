@@ -6,8 +6,11 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gin-gonic/contrib/sessions"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -84,6 +87,32 @@ func CreateKyokuForArtist(db *gorm.DB, artistName string, kyokuTitle string) err
 	return createError
 }
 
+func CreateUser(db *gorm.DB, email string, password string) error {
+	hashed, _ := bcrypt.GenerateFromPassword([]byte(password), 10)
+	new_user := models.User{Email: email, HashedPassword: string(hashed)}
+	result := db.Create(&new_user)
+	return result.Error
+}
+
+func FindUserByEmail(db *gorm.DB, email string) (models.User, error) {
+	var user models.User
+	result := db.First(&user, "Email = ?", email)
+	return user, result.Error
+}
+
+// AuthRequired is a simple middleware to check the session
+func AuthRequired(c *gin.Context) {
+	session := sessions.Default(c)
+	user := session.Get("gin_session_username")
+	if user == nil {
+		// Abort the request with the appropriate error code
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	// Continue down the chain to handler etc
+	c.Next()
+}
+
 func main() {
 	godotenv.Load(".env")
 	db_conn_string, ok := os.LookupEnv("DATABASE_URL")
@@ -104,8 +133,80 @@ func main() {
 	// Migrate the schema
 	db.AutoMigrate(&models.Kyoku{})
 	db.AutoMigrate(&models.Artist{})
+	db.AutoMigrate(&models.User{})
 
 	r := gin.Default()
+
+	r.Use(sessions.Sessions("mysession", sessions.NewCookieStore([]byte("kyokusharego_secret"))))
+
+	// Private group, require authentication to access
+	private := r.Group("/session")
+	private.Use(AuthRequired)
+	{
+		private.GET("/me", func(c *gin.Context) {
+			session := sessions.Default(c)
+			user := session.Get("gin_session_username")
+			c.JSON(http.StatusOK, gin.H{"user": user})
+		})
+	}
+
+	// ユーザー登録
+	r.POST("/signup", func(c *gin.Context) {
+		// バリデーション処理
+		var json models.UserAuthJSONRequest
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		// 登録ユーザーが重複していた場合にはじく処理
+		if err := CreateUser(db, json.Email, json.Password); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": "successful",
+		})
+	})
+
+	// ログイン用のhandler
+	r.POST("/login", func(c *gin.Context) {
+		// バリデーション処理
+		var json models.UserAuthJSONRequest
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		user, userFindErr := FindUserByEmail(db, json.Email)
+		if userFindErr != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		// ユーザーパスワードの比較
+		if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(json.Password)); err != nil {
+			fmt.Println("ログインできませんでした")
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		} else {
+			fmt.Println("ログインできました")
+			session := sessions.Default(c)
+			session.Set("gin_session_username", user.Email)
+
+			// c.SetCookie("gin_cookie_username", user.Email, 3600, "/", "localhost", false, true)
+
+			if err := session.Save(); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+				return
+			}
+			c.JSON(http.StatusOK, gin.H{
+				"message": "successful",
+			})
+			return
+		}
+	})
+
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
