@@ -1,0 +1,25 @@
+{
+  "name": "kyokusharego",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tailwindcss": "npx tailwindcss -i ./main.css -o ./views/static/output.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kyohei-us/KyokuShareGo.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kyohei-us/KyokuShareGo/issues"
+  },
+  "homepage": "https://github.com/Kyohei-us/KyokuShareGo#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.4.13",
+    "postcss": "^8.4.20",
+    "tailwindcss": "^3.2.4"
+  }
+}
