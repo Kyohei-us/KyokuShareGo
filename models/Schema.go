@@ -26,16 +26,21 @@ type ArtistCreateJSONRequest struct {
 type Comment struct {
 	gorm.Model
 	Body    string
-	KyokuId int
+	KyokuID int
 	Kyoku   Kyoku
-	UserId  int
+	UserID  int
 	User    User
 }
 
 type CommentCreateJSONRequest struct {
 	Body    string `json:"comment_body"`
-	KyokuId int    `json:"kyoku_id"`
-	UserId  int    `json:"user_id"`
+	KyokuID int    `json:"kyoku_id"`
+	UserID  int    `json:"user_id"`
+}
+
+type CommentJoinsUser struct {
+	Comment
+	User
 }
 
 type User struct {

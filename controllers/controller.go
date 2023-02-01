@@ -124,7 +124,7 @@ func PostComments(c *gin.Context) {
 		return
 	}
 
-	err := dbServices.CreateComment(json.KyokuId, json.UserId, json.Body)
+	err := dbServices.CreateComment(json.KyokuID, json.UserID, json.Body)
 
 	if err == nil {
 		c.JSON(http.StatusOK, gin.H{

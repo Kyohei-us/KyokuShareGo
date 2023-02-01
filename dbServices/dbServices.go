@@ -80,6 +80,12 @@ func FindAllKyokus() ([]models.Kyoku, error) {
 	return kyokus, result.Error
 }
 
+func FindKyokuById(kyoku_id int) (models.Kyoku, error) {
+	var kyoku models.Kyoku
+	result := db.Preload("Artists").First(&kyoku, "Id = ?", kyoku_id)
+	return kyoku, result.Error
+}
+
 func createKyokuWithoutArtist(db *gorm.DB, kyokuTitle string) (models.Kyoku, error) {
 	kyoku := models.Kyoku{Title: kyokuTitle}
 	result := db.Create(&kyoku)
@@ -131,7 +137,7 @@ func FindUserByEmail(email string) (models.User, error) {
 func CreateComment(kyokuId int, userId int, body string) error {
 	createError := db.Transaction(func(tx *gorm.DB) error {
 		// do some database operations in the transaction (use 'tx' from this point, not 'db')
-		comment := models.Comment{Body: body, KyokuId: kyokuId, UserId: userId}
+		comment := models.Comment{Body: body, KyokuID: kyokuId, UserID: userId}
 		result := tx.Create(&comment)
 		if result.Error != nil {
 			// return any error will rollback
@@ -147,8 +153,21 @@ func CreateComment(kyokuId int, userId int, body string) error {
 
 func FindCommentsByUserId(userId int) ([]models.Comment, error) {
 	var comments []models.Comment
-	result := db.Find(&comments, "UserId = ?", strconv.Itoa(userId))
+	result := db.Find(&comments, "user_id = ?", strconv.Itoa(userId))
 	return comments, result.Error
+}
+
+func FindCommentsByKyokuId(kyokuId int) ([]models.CommentJoinsUser, error) {
+	commentList := []models.CommentJoinsUser{}
+	rows, err := db.Raw("SELECT users.email, comments.body, comments.id, comments.created_at, comments.updated_at, comments.deleted_at, comments.kyoku_id, comments.user_id FROM comments INNER JOIN users ON comments.user_id = users.id WHERE comments.kyoku_id = ?", kyokuId).Rows()
+	if err == nil {
+		defer rows.Close()
+		if rows.Next() {
+			db.ScanRows(rows, &commentList)
+		}
+	}
+	// err := fmt.Errorf("%s: %s", "ERROR", "DB Connection String not found")
+	return commentList, nil
 }
 
 func FindAllComments() ([]models.Comment, error) {

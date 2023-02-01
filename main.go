@@ -3,7 +3,9 @@ package main
 import (
 	"KyokuShareGo/controllers"
 	"KyokuShareGo/dbServices"
+	"fmt"
 	"os"
+	"strconv"
 
 	"net/http"
 
@@ -82,6 +84,34 @@ func main() {
 
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"kyokus": kyokus,
+		})
+	})
+
+	r.GET("/kyoku/:id", func(c *gin.Context) {
+		kyoku_id := c.Param("id")
+		kyoku_id_int, ParseIntErr := strconv.Atoi(kyoku_id)
+		if ParseIntErr != nil {
+			c.HTML(http.StatusBadRequest, "kyoku_comments.html", gin.H{})
+			return
+		}
+		kyoku, err := dbServices.FindKyokuById(kyoku_id_int)
+		if err != nil {
+			c.HTML(http.StatusBadRequest, "kyoku_comments.html", gin.H{})
+			return
+		}
+
+		comments, err := dbServices.FindCommentsByKyokuId(kyoku_id_int)
+		if err != nil {
+			c.HTML(http.StatusBadRequest, "kyoku_comments.html", gin.H{})
+			return
+		}
+		if len(comments) != 0 {
+			fmt.Println(comments[0].User.Email)
+		}
+
+		c.HTML(http.StatusOK, "kyoku_comments.html", gin.H{
+			"kyoku":    kyoku,
+			"comments": comments,
 		})
 	})
 
