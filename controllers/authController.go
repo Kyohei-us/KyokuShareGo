@@ -4,6 +4,7 @@ import (
 	"KyokuShareGo/dbServices"
 	"KyokuShareGo/models"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/contrib/sessions"
@@ -30,34 +31,37 @@ func UserSignup(c *gin.Context) {
 }
 
 func UserLoginForm(c *gin.Context) {
+	log.Print("Start Login Process")
 	user_email := c.DefaultPostForm("user_email", "")
 	user_password := c.DefaultPostForm("user_password", "")
 
 	user, userFindErr := dbServices.FindUserByEmail(user_email)
 	if userFindErr != nil {
+		log.Printf("Could not find a user with the email: %s", user_email)
 		c.JSON(http.StatusBadRequest, gin.H{"error": userFindErr.Error()})
 		return
 	}
 
 	// ユーザーパスワードの比較
 	if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(user_password)); err != nil {
-		fmt.Println("ログインできませんでした")
+		log.Printf("Password did not match. Could not log in a user with the email: %s", user_email)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	} else {
-		fmt.Println("ログインできました")
+		log.Printf("Login successful with the email: %s", user_email)
+		log.Printf("Setting user session with the email: %s", user_email)
 		session := sessions.Default(c)
 		session.Set("gin_session_username", user.Email)
 
 		// c.SetCookie("gin_cookie_username", user.Email, 3600, "/", "localhost", false, true)
 
 		if err := session.Save(); err != nil {
+			log.Printf("Failed to save session with the email: %s", user_email)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"message": "successful",
-		})
+		log.Printf("Successfully set the session with the email: %s", user_email)
+		c.Redirect(http.StatusFound, "/")
 		return
 	}
 }
@@ -99,6 +103,16 @@ func UserLogin(c *gin.Context) {
 		})
 		return
 	}
+}
+
+func UserLogout(c *gin.Context) {
+	session := sessions.Default(c)
+	log.Print("Retrieved Session")
+	session.Clear()
+	log.Print("Cleared Session")
+	session.Save()
+	log.Print("Saved Empty Session, Redirecting to top page...")
+	c.Redirect(http.StatusFound, "/")
 }
 
 // AuthRequired is a simple middleware to check the session

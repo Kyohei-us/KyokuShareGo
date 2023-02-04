@@ -121,6 +121,8 @@ func main() {
 		c.HTML(http.StatusOK, "login.html", gin.H{})
 	})
 
+	r.GET("/logout", controllers.UserLogout)
+
 	r.GET("/new_comment", func(c *gin.Context) {
 		session := sessions.Default(c)
 		user := session.Get("gin_session_username")
