@@ -170,6 +170,23 @@ func FindCommentsByKyokuId(kyokuId int) ([]models.CommentJoinsUser, error) {
 	return commentList, nil
 }
 
+func FindCommentById(commentId int) (models.Comment, error) {
+	comment := models.Comment{}
+	result := db.First(&comment, "ID = ?", strconv.Itoa(commentId))
+	return comment, result.Error
+}
+
+func DeleteCommentById(commentId int) (bool, error) {
+	comment := models.Comment{}
+	_ = db.First(&comment, "ID = ?", strconv.Itoa(commentId))
+	result := db.Delete(&comment)
+	if result.Error == nil {
+		return true, result.Error
+	} else {
+		return false, result.Error
+	}
+}
+
 func FindAllComments() ([]models.Comment, error) {
 	var comments []models.Comment
 	result := db.Find(&comments)

@@ -74,6 +74,7 @@ func main() {
 		api.GET("/comments", controllers.GetComments)
 		api.POST("/comments", controllers.PostComments)
 		api.POST("/comments_logged_in", controllers.PostCommentsLoggedIn)
+		api.DELETE("/comments", controllers.DeleteComments)
 	}
 
 	r.GET("/", func(c *gin.Context) {

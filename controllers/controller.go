@@ -4,6 +4,7 @@ import (
 	"KyokuShareGo/dbServices"
 	"KyokuShareGo/models"
 	"fmt"
+	"log"
 	"strconv"
 
 	"net/http"
@@ -163,6 +164,38 @@ func PostCommentsLoggedIn(c *gin.Context) {
 			"message": "Successful",
 		})
 	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "ERROR",
+		})
+	}
+}
+
+func DeleteComments(c *gin.Context) {
+	commentId := c.DefaultQuery("comment_id", "")
+
+	if commentId == "" {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "ERROR",
+		})
+		return
+	}
+
+	commentIdInt, err := strconv.Atoi(commentId)
+	if err != nil {
+		log.Fatal(err)
+		c.JSON(http.StatusOK, gin.H{
+			"message": "ERROR",
+		})
+		return
+	}
+
+	var findCommentErr error
+	comment, findCommentErr := dbServices.DeleteCommentById(commentIdInt)
+
+	if findCommentErr == nil {
+		c.JSON(http.StatusOK, comment)
+	} else {
+		log.Fatal(findCommentErr)
 		c.JSON(http.StatusOK, gin.H{
 			"message": "ERROR",
 		})
