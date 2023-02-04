@@ -29,6 +29,39 @@ func UserSignup(c *gin.Context) {
 	})
 }
 
+func UserLoginForm(c *gin.Context) {
+	user_email := c.DefaultPostForm("user_email", "")
+	user_password := c.DefaultPostForm("user_password", "")
+
+	user, userFindErr := dbServices.FindUserByEmail(user_email)
+	if userFindErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": userFindErr.Error()})
+		return
+	}
+
+	// ユーザーパスワードの比較
+	if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(user_password)); err != nil {
+		fmt.Println("ログインできませんでした")
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	} else {
+		fmt.Println("ログインできました")
+		session := sessions.Default(c)
+		session.Set("gin_session_username", user.Email)
+
+		// c.SetCookie("gin_cookie_username", user.Email, 3600, "/", "localhost", false, true)
+
+		if err := session.Save(); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": "successful",
+		})
+		return
+	}
+}
+
 func UserLogin(c *gin.Context) {
 	// バリデーション処理
 	var json models.UserAuthJSONRequest
@@ -36,15 +69,17 @@ func UserLogin(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	user_email := json.Email
+	user_password := json.Password
 
-	user, userFindErr := dbServices.FindUserByEmail(json.Email)
+	user, userFindErr := dbServices.FindUserByEmail(user_email)
 	if userFindErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": userFindErr.Error()})
 		return
 	}
 
 	// ユーザーパスワードの比較
-	if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(json.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(user_password)); err != nil {
 		fmt.Println("ログインできませんでした")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

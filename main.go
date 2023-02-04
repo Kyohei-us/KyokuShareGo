@@ -63,6 +63,7 @@ func main() {
 
 		// ユーザーログイン
 		api.POST("/login", controllers.UserLogin)
+		api.POST("/login_form", controllers.UserLoginForm)
 
 		api.GET("/kyokus", controllers.GetKyokus)
 		api.POST("/kyokus", controllers.PostKyokus)
