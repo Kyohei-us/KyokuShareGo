@@ -38,6 +38,11 @@ type CommentCreateJSONRequest struct {
 	UserID  int    `json:"user_id"`
 }
 
+type CommentCreateLoggedInJSONRequest struct {
+	Body    string `json:"comment_body"`
+	KyokuID int    `json:"kyoku_id"`
+}
+
 type CommentJoinsUser struct {
 	Comment
 	User

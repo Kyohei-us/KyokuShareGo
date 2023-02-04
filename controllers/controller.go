@@ -3,10 +3,12 @@ package controllers
 import (
 	"KyokuShareGo/dbServices"
 	"KyokuShareGo/models"
+	"fmt"
 	"strconv"
 
 	"net/http"
 
+	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -125,6 +127,36 @@ func PostComments(c *gin.Context) {
 	}
 
 	err := dbServices.CreateComment(json.KyokuID, json.UserID, json.Body)
+
+	if err == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Successful",
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "ERROR",
+		})
+	}
+}
+
+func PostCommentsLoggedIn(c *gin.Context) {
+	var json models.CommentCreateLoggedInJSONRequest
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	session := sessions.Default(c)
+	userEmail := session.Get("gin_session_username")
+	user, userFindErr := dbServices.FindUserByEmail(userEmail.(string))
+	if userFindErr != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "ERROR",
+		})
+	}
+
+	fmt.Println("user:", user)
+
+	err := dbServices.CreateComment(json.KyokuID, int(user.ID), json.Body)
 
 	if err == nil {
 		c.JSON(http.StatusOK, gin.H{

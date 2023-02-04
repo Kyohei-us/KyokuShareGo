@@ -73,6 +73,7 @@ func main() {
 
 		api.GET("/comments", controllers.GetComments)
 		api.POST("/comments", controllers.PostComments)
+		api.POST("/comments_logged_in", controllers.PostCommentsLoggedIn)
 	}
 
 	r.GET("/", func(c *gin.Context) {
@@ -118,6 +119,16 @@ func main() {
 
 	r.GET("/login", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "login.html", gin.H{})
+	})
+
+	r.GET("/new_comment", func(c *gin.Context) {
+		session := sessions.Default(c)
+		user := session.Get("gin_session_username")
+		if user != nil {
+			c.HTML(http.StatusOK, "new_comment.html", gin.H{})
+		} else {
+			c.HTML(http.StatusOK, "login.html", gin.H{})
+		}
 	})
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
