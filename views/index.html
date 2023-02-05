@@ -21,7 +21,9 @@
                 <h1 class="text-center text-gray-200 text-2xl">Home page</h1>
                 <div class="grid grid-cols-3 gap-4 bg-gray-800">
                     {{ range .kyokus }}
-                        <div class="max-w-sm rounded overflow-hidden shadow-lg bg-gray-800 text-gray-100 hover:bg-gray-600">
+                        <div 
+                            class="max-w-sm rounded overflow-hidden shadow-lg bg-gray-800 text-gray-100 hover:bg-gray-600"
+                            onclick="window.location='/kyoku/{{- .ID}}';">
                             <div class="px-6 py-4">
                                 <h3 class="text-gray-200 font-bold text-xl mb-2">{{- .Title }}</h3>
                                 <h3 class="text-gray-200 font-bold text-base mb-2">{{- (index .Artists 0).Name }}</h3>
