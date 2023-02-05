@@ -159,7 +159,7 @@ func FindCommentsByUserId(userId int) ([]models.Comment, error) {
 
 func FindCommentsByKyokuId(kyokuId int) ([]models.CommentJoinsUser, error) {
 	commentList := []models.CommentJoinsUser{}
-	rows, err := db.Raw("SELECT users.email, comments.body, comments.id, comments.created_at, comments.updated_at, comments.deleted_at, comments.kyoku_id, comments.user_id FROM comments INNER JOIN users ON comments.user_id = users.id WHERE comments.kyoku_id = ? AND comments.deleted_at = NULL", kyokuId).Rows()
+	rows, err := db.Table("comments").Select("users.email, comments.body, comments.id, comments.created_at, comments.updated_at, comments.deleted_at, comments.kyoku_id, comments.user_id").Joins("INNER JOIN users ON comments.user_id = users.id").Where("comments.kyoku_id = ? AND comments.deleted_at IS ?", kyokuId, gorm.Expr("NULL")).Rows()
 	if err == nil {
 		defer rows.Close()
 		if rows.Next() {
