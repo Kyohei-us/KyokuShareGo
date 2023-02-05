@@ -48,6 +48,11 @@ type CommentJoinsUser struct {
 	User
 }
 
+type CommentQueryString struct {
+	KyokuId *int
+	UserId  *int
+}
+
 type User struct {
 	gorm.Model
 	Email          string `gorm:"unique;not null"`

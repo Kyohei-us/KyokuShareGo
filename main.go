@@ -3,7 +3,7 @@ package main
 import (
 	"KyokuShareGo/controllers"
 	"KyokuShareGo/dbServices"
-	"fmt"
+	"KyokuShareGo/models"
 	"os"
 	"strconv"
 
@@ -103,13 +103,10 @@ func main() {
 			return
 		}
 
-		comments, err := dbServices.FindCommentsByKyokuId(kyoku_id_int)
+		comments, err := dbServices.FindComments(&models.CommentQueryString{KyokuId: &kyoku_id_int})
 		if err != nil {
 			c.HTML(http.StatusBadRequest, "kyoku_comments.html", gin.H{})
 			return
-		}
-		if len(comments) != 0 {
-			fmt.Println(comments[0].User.Email)
 		}
 
 		c.HTML(http.StatusOK, "kyoku_comments.html", gin.H{

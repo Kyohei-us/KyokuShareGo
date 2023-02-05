@@ -96,20 +96,34 @@ func PostArtists(c *gin.Context) {
 
 func GetComments(c *gin.Context) {
 	userId := c.DefaultQuery("user_id", "")
+	kyokuId := c.DefaultQuery("kyoku_id", "")
 
-	var comments []models.Comment
-	var err error
+	var commentQueryString models.CommentQueryString
 
+	if kyokuId != "" {
+		kyokuIdInt, err := strconv.Atoi(kyokuId)
+		if err == nil {
+			commentQueryString.KyokuId = &kyokuIdInt
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "ERROR",
+			})
+			return
+		}
+	}
 	if userId != "" {
 		userIdInt, err := strconv.Atoi(userId)
-		if err != nil {
-			comments, _ = dbServices.FindCommentsByUserId(userIdInt)
+		if err == nil {
+			commentQueryString.UserId = &userIdInt
 		} else {
-			comments, _ = dbServices.FindAllComments()
+			c.JSON(http.StatusOK, gin.H{
+				"message": "ERROR",
+			})
+			return
 		}
-	} else {
-		comments, _ = dbServices.FindAllComments()
 	}
+
+	comments, err := dbServices.FindComments(&commentQueryString)
 
 	if err == nil {
 		c.JSON(http.StatusOK, comments)
