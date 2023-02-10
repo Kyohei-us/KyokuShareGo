@@ -20,10 +20,10 @@
                     <h1 class="text-center text-gray-200 text-2xl">曲情報</h1>
                     <section class="py-5 text-center">
                         <div>
-                            <h3>
+                            <h3 class="text-gray-200 font-bold text-xl mb-2">
                                 <a href="/artist/{{- (index .kyoku.Artists 0).ID }}">{{- (index .kyoku.Artists 0).Name }}</a>
                             </h3>
-                            <p class="">
+                            <p class="text-gray-200 font-bold text-xl mb-2">
                                 {{- .kyoku.Title }}
                             </p>
                         </div>
@@ -37,7 +37,7 @@
                             <div class="max-w-sm rounded overflow-hidden shadow-lg bg-gray-800 text-gray-100 hover:bg-gray-600">
                                 <div class="px-6 py-4">
                                     <h3 class="text-gray-200 font-bold text-xl mb-2">{{ .Body }}</h3>
-                                    <p class="text-gray-200 font-bold text-base mb-2">by {{ .User.Email }}</p>
+                                    <p class="text-gray-200 font-bold text-base mb-2">by {{ .User.DisplayName }}</p>
                                 </div>
                             </div>
                         {{ end }}

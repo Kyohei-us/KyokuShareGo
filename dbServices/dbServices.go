@@ -134,6 +134,17 @@ func FindUserByEmail(email string) (models.User, error) {
 	return user, result.Error
 }
 
+func UpdateUserDisplayName(userId int, displayName string) (models.User, error) {
+	var user models.User
+	result := db.First(&user, "ID = ?", userId)
+	if result.Error != nil {
+		return models.User{}, result.Error
+	}
+	user.DisplayName = displayName
+	saveResult := db.Save(&user)
+	return user, saveResult.Error
+}
+
 func CreateComment(kyokuId int, userId int, body string) error {
 	createError := db.Transaction(func(tx *gorm.DB) error {
 		// do some database operations in the transaction (use 'tx' from this point, not 'db')
@@ -223,7 +234,7 @@ func FindComments(commentQueryString *models.CommentQueryString) ([]models.Comme
 		result = db.Preload("User").Preload("Kyoku").Where(whereClause, gorm.Expr("NULL")).Find(&comments)
 	}
 	if result.Error != nil {
-		return []models.Comment{}, nil
+		return []models.Comment{}, result.Error
 	}
 	return comments, nil
 }

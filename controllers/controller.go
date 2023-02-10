@@ -215,3 +215,32 @@ func DeleteComments(c *gin.Context) {
 		})
 	}
 }
+
+func UpdateUserDisplayName(c *gin.Context) {
+	var json models.UserProfileCreateJSONRequest
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	session := sessions.Default(c)
+	userEmail := session.Get("gin_session_username")
+	user, userFindErr := dbServices.FindUserByEmail(userEmail.(string))
+	if userFindErr != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "ERROR",
+		})
+	}
+
+	_, err := dbServices.UpdateUserDisplayName(int(user.ID), json.DisplayName)
+
+	if err == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Successful",
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "ERROR",
+		})
+	}
+}

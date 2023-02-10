@@ -57,9 +57,14 @@ type User struct {
 	gorm.Model
 	Email          string `gorm:"unique;not null"`
 	HashedPassword string
+	DisplayName    string
 }
 
 type UserAuthJSONRequest struct {
 	Email    string `json:"user_email"`
 	Password string `json:"user_password"`
+}
+
+type UserProfileCreateJSONRequest struct {
+	DisplayName string `json:"display_name"`
 }

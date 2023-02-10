@@ -47,6 +47,7 @@ func main() {
 			user := session.Get("gin_session_username")
 			c.JSON(http.StatusOK, gin.H{"user": user})
 		})
+		private.PATCH("/updateDisplayName", controllers.UpdateUserDisplayName)
 	}
 
 	api := r.Group("/api")
