@@ -2,7 +2,6 @@ package dbServices
 
 import (
 	"KyokuShareGo/models"
-	"database/sql"
 	"fmt"
 	"os"
 	"strconv"
@@ -211,24 +210,20 @@ func FindComments(commentQueryString *models.CommentQueryString) ([]models.Comme
 	}
 
 	var comments []models.Comment
-	var rows *sql.Rows
-	var err error
+	var result *gorm.DB
 	if commentQueryString.KyokuId != nil {
 		if commentQueryString.UserId != nil {
-			rows, err = db.Table("comments").Where(whereClause, commentQueryString.KyokuId, commentQueryString.UserId, gorm.Expr("NULL")).Rows()
+			result = db.Preload("User").Preload("Kyoku").Where(whereClause, commentQueryString.KyokuId, commentQueryString.UserId, gorm.Expr("NULL")).Find(&comments)
 		} else {
-			rows, err = db.Table("comments").Where(whereClause, commentQueryString.KyokuId, gorm.Expr("NULL")).Rows()
+			result = db.Preload("User").Preload("Kyoku").Where(whereClause, commentQueryString.KyokuId, gorm.Expr("NULL")).Find(&comments)
 		}
 	} else if commentQueryString.UserId != nil {
-		rows, err = db.Table("comments").Where(whereClause, commentQueryString.UserId, gorm.Expr("NULL")).Rows()
+		result = db.Preload("User").Preload("Kyoku").Where(whereClause, commentQueryString.UserId, gorm.Expr("NULL")).Find(&comments)
 	} else {
-		rows, err = db.Table("comments").Where(whereClause, gorm.Expr("NULL")).Rows()
+		result = db.Preload("User").Preload("Kyoku").Where(whereClause, gorm.Expr("NULL")).Find(&comments)
 	}
-	if err == nil {
-		defer rows.Close()
-		if rows.Next() {
-			db.ScanRows(rows, &comments)
-		}
+	if result.Error != nil {
+		return []models.Comment{}, nil
 	}
 	return comments, nil
 }
