@@ -33,6 +33,28 @@ func GetKyokus(c *gin.Context) {
 	}
 }
 
+func GetKyokusById(c *gin.Context) {
+	kyoku_id := c.Param("id")
+	kyoku_id_int, ParseIntErr := strconv.Atoi(kyoku_id)
+	if ParseIntErr != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "ERROR",
+		})
+		return
+	}
+	kyoku, err := dbServices.FindKyokuById(kyoku_id_int)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "ERROR",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"kyoku_title": kyoku.Title,
+	})
+}
+
 func PostKyokus(c *gin.Context) {
 	var json models.KyokuCreateJSONRequest
 	if err := c.ShouldBindJSON(&json); err != nil {

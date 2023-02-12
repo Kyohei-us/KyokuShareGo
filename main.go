@@ -67,6 +67,7 @@ func main() {
 		api.POST("/login_form", controllers.UserLoginForm)
 
 		api.GET("/kyokus", controllers.GetKyokus)
+		api.GET("/kyokus/:id", controllers.GetKyokusById)
 		api.POST("/kyokus", controllers.PostKyokus)
 
 		api.GET("/artists", controllers.GetArtists)
@@ -126,6 +127,16 @@ func main() {
 		session := sessions.Default(c)
 		user := session.Get("gin_session_username")
 		if user != nil {
+
+			kyokuId := c.DefaultQuery("kyoku_id", "")
+			kyokuIdInt, err := strconv.Atoi(kyokuId)
+			if kyokuId != "" && err == nil {
+				c.HTML(http.StatusOK, "new_comment.html", gin.H{
+					"kyokuId": kyokuIdInt,
+				})
+				return
+			}
+
 			c.HTML(http.StatusOK, "new_comment.html", gin.H{})
 		} else {
 			c.HTML(http.StatusOK, "login.html", gin.H{})
