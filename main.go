@@ -87,8 +87,19 @@ func main() {
 			return
 		}
 
+		session := sessions.Default(c)
+		user := session.Get("gin_session_username")
+		// Not logged in
+		if user == nil {
+			c.HTML(http.StatusOK, "index.html", gin.H{
+				"kyokus": kyokus,
+			})
+			return
+		}
+
 		c.HTML(http.StatusOK, "index.html", gin.H{
-			"kyokus": kyokus,
+			"kyokus":    kyokus,
+			"logged_in": true,
 		})
 	})
 
