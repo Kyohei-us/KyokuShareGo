@@ -9,6 +9,24 @@
     <link href="/static/output.css" rel="stylesheet">
 </head>
 
+<script>
+    function postNewComment() {
+        const comment_body = document.getElementById("comment_body").value;
+        const kyoku_id = "{{- .kyoku.ID }}";
+
+        fetch('/api/comments_logged_in', { 
+            method: 'POST',
+            body: JSON.stringify({
+            "comment_body": comment_body, 
+            "kyoku_id": parseInt(kyoku_id)
+        }) })
+            .then((response) => response.json())
+            .then((data) => console.log(data))
+            .catch(error => console.error(error));
+        window.location.replace("/kyoku/" + kyoku_id);
+    }
+</script>
+
 <body class="bg-gray-800">
 
 
@@ -24,7 +42,9 @@
           <div class="hidden w-full md:block md:w-auto" id="navbar-default">
             <ul class="flex flex-col p-4 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
               <li>
-                <a href="/new_comment?kyoku_id={{ .kyoku.ID }}" class="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white" aria-current="page">New Comment</a>
+                <a href="/login" class="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white" aria-current="page">
+                    Login
+                </a>
               </li>
             </ul>
           </div>
@@ -62,6 +82,44 @@
                                 </div>
                             </div>
                         {{ end }}
+                    </div>
+                </div>
+
+                <div class="bg-gray-800">
+                    <div class="grid place-items-center h-screen">
+                        <div class="w-full max-w-xs">
+                            <form 
+                                class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="comment_body">
+                                Comment
+                                </label>
+                                <input 
+                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                                    id="comment_body" 
+                                    name="comment_body"
+                                    type="text" 
+                                    placeholder="Comment">
+                            </div>
+                            <div class="flex items-center justify-between">
+                                {{ if eq .logged_in true }}
+                                <button 
+                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" 
+                                    type="button"
+                                    onclick="postNewComment()">
+                                Post new comment!
+                                </button>
+                                {{ else }}
+                                <button 
+                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" 
+                                    type="button"
+                                    onclick="window.location.href='/login';">
+                                Login before posting comments!
+                                </button>    
+                                {{ end }}
+                            </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

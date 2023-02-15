@@ -111,9 +111,19 @@ func main() {
 			return
 		}
 
+		session := sessions.Default(c)
+		user := session.Get("gin_session_username")
+		if user == nil {
+			c.HTML(http.StatusOK, "kyoku_comments.html", gin.H{
+				"kyoku":    kyoku,
+				"comments": comments,
+			})
+		}
+
 		c.HTML(http.StatusOK, "kyoku_comments.html", gin.H{
-			"kyoku":    kyoku,
-			"comments": comments,
+			"kyoku":     kyoku,
+			"comments":  comments,
+			"logged_in": true,
 		})
 	})
 
