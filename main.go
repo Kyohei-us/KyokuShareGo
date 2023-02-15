@@ -129,6 +129,7 @@ func main() {
 				"kyoku":    kyoku,
 				"comments": comments,
 			})
+			return
 		}
 
 		c.HTML(http.StatusOK, "kyoku_comments.html", gin.H{
