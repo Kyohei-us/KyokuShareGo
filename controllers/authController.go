@@ -127,3 +127,16 @@ func AuthRequired(c *gin.Context) {
 	// Continue down the chain to handler etc
 	c.Next()
 }
+
+func LoginRequired(c *gin.Context) {
+	session := sessions.Default(c)
+	user := session.Get("gin_session_username")
+	if user == nil {
+		// Abort the request with the appropriate error code
+		log.Print("Showing Login page because user is not logged in...")
+		c.HTML(http.StatusOK, "login.html", gin.H{})
+		return
+	}
+	// Continue down the chain to handler etc
+	c.Next()
+}

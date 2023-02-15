@@ -123,24 +123,17 @@ func main() {
 
 	r.GET("/logout", controllers.UserLogout)
 
-	r.GET("/new_comment", func(c *gin.Context) {
-		session := sessions.Default(c)
-		user := session.Get("gin_session_username")
-		if user != nil {
-
-			kyokuId := c.DefaultQuery("kyoku_id", "")
-			kyokuIdInt, err := strconv.Atoi(kyokuId)
-			if kyokuId != "" && err == nil {
-				c.HTML(http.StatusOK, "new_comment.html", gin.H{
-					"kyokuId": kyokuIdInt,
-				})
-				return
-			}
-
-			c.HTML(http.StatusOK, "new_comment.html", gin.H{})
-		} else {
-			c.HTML(http.StatusOK, "login.html", gin.H{})
+	r.GET("/new_comment", controllers.LoginRequired, func(c *gin.Context) {
+		kyokuId := c.DefaultQuery("kyoku_id", "")
+		kyokuIdInt, err := strconv.Atoi(kyokuId)
+		if kyokuId != "" && err == nil {
+			c.HTML(http.StatusOK, "new_comment.html", gin.H{
+				"kyokuId": kyokuIdInt,
+			})
+			return
 		}
+
+		c.HTML(http.StatusOK, "new_comment.html", gin.H{})
 	})
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
