@@ -10,6 +10,42 @@
     <link href="/static/output.css" rel="stylesheet">
 </head>
 
+<script>
+    function editDisplayName() {
+        const showDisplayNameElement = document.getElementById("showDisplayName");
+
+        const showDisplayNameText = showDisplayNameElement.textContent;
+
+        showDisplayNameElement.hidden = true;
+
+        const editDisplayNameElement = document.getElementById("editDisplayName");
+
+        editDisplayNameElement.hidden = false;
+
+        const editDisplayNameButton = document.getElementById("editDisplayNameButton");
+
+        editDisplayNameButton.hidden = true;
+
+        const postEditedDisplayNameButton = document.getElementById("postEditedDisplayNameButton");
+
+        postEditedDisplayNameButton.hidden = false;
+    }
+
+    function postEditedDisplayName() {
+        const editDisplayNameText = document.getElementById("editDisplayNameInput").value;
+
+        fetch('/session/updateDisplayName', { 
+            method: 'PATCH',
+            body: JSON.stringify({
+            "display_name": editDisplayNameText
+        }) })
+            .then((response) => response.json())
+            .then((data) => console.log(data))
+            .catch(error => console.error(error));
+        window.location.replace("/");
+    }
+</script>
+
 <body class="bg-gray-800">
 
     {{ template "navbar" . }}
@@ -31,9 +67,19 @@
                     {{ if .user.DisplayName }}
                     <div 
                         class="max-w-sm rounded overflow-hidden shadow-lg bg-gray-800 text-gray-100 hover:bg-gray-600 m-4">
-                        <div class="px-6 py-4">
+                        <div id="showDisplayName" class="px-6 py-4">
                             <h3 class="text-gray-200 font-bold text-xl mb-2">{{- .user.DisplayName }}</h3>
                         </div>
+                        <div id="editDisplayName" class="px-6 py-4" hidden>
+                            <input id="editDisplayNameInput" class="text-gray-600 font-bold text-xl mb-2" value="{{- .user.DisplayName }}" />
+                        </div>
+                        <button
+                            id="editDisplayNameButton"
+                            onclick="editDisplayName()">Edit</button>
+                        <button
+                            id="postEditedDisplayNameButton"
+                            onclick="postEditedDisplayName()"
+                            hidden>Save Change</button>
                     </div>
                     {{ end }}
                 </div>
