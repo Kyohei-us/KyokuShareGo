@@ -182,9 +182,8 @@ func PostCommentsLoggedIn(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	session := sessions.Default(c)
-	userEmail := session.Get("gin_session_username")
-	user, userFindErr := dbServices.FindUserByEmail(userEmail.(string))
+
+	user, userFindErr := FindUserFromSession(c)
 	if userFindErr != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "ERROR",
@@ -236,6 +235,16 @@ func DeleteComments(c *gin.Context) {
 			"message": "ERROR",
 		})
 	}
+}
+
+func FindUserFromSession(c *gin.Context) (models.User, error) {
+	session := sessions.Default(c)
+	userEmail := session.Get("gin_session_username")
+	if userEmail == nil {
+		return models.User{}, fmt.Errorf("session is nil")
+	}
+	user, userFindErr := dbServices.FindUserByEmail(userEmail.(string))
+	return user, userFindErr
 }
 
 func UpdateUserDisplayName(c *gin.Context) {

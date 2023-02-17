@@ -96,10 +96,9 @@ func main() {
 				return
 			}
 
-			session := sessions.Default(c)
-			user := session.Get("gin_session_username")
+			user, userFindErr := controllers.FindUserFromSession(c)
 			// Not logged in
-			if user == nil {
+			if userFindErr != nil {
 				c.HTML(http.StatusOK, "index.html", gin.H{
 					"kyokus": kyokus,
 				})
@@ -109,6 +108,7 @@ func main() {
 			c.HTML(http.StatusOK, "index.html", gin.H{
 				"kyokus":    kyokus,
 				"logged_in": true,
+				"user":      user,
 			})
 		})
 
@@ -131,9 +131,8 @@ func main() {
 				return
 			}
 
-			session := sessions.Default(c)
-			user := session.Get("gin_session_username")
-			if user == nil {
+			user, userFindErr := controllers.FindUserFromSession(c)
+			if userFindErr != nil {
 				c.HTML(http.StatusOK, "kyoku_comments.html", gin.H{
 					"kyoku":    kyoku,
 					"comments": comments,
@@ -145,6 +144,7 @@ func main() {
 				"kyoku":     kyoku,
 				"comments":  comments,
 				"logged_in": true,
+				"user":      user,
 			})
 		})
 
