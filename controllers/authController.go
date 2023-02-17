@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/mail"
 
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -16,6 +17,13 @@ func UserSignup(c *gin.Context) {
 	// バリデーション処理
 	var json models.UserAuthJSONRequest
 	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Add Function to check the Email is actually email (using regex)
+	_, err := mail.ParseAddress(json.Email)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
