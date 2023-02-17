@@ -48,6 +48,7 @@ func main() {
 			c.JSON(http.StatusOK, gin.H{"user": user})
 		})
 		private.PATCH("/updateDisplayName", controllers.UpdateUserDisplayName)
+		private.POST("/comments_logged_in", controllers.PostCommentsLoggedIn)
 	}
 
 	api := r.Group("/api")
@@ -78,10 +79,9 @@ func main() {
 		api.GET("/artists", controllers.GetArtists)
 		api.POST("/artists", controllers.PostArtists)
 
-		// 全コメントを取得、コメントを追加（非ログイン、ログイン）、IDでコメントを削除
+		// 全コメントを取得、コメントを追加（非ログイン）、IDでコメントを削除
 		api.GET("/comments", controllers.GetComments)
 		api.POST("/comments", controllers.PostComments)
-		api.POST("/comments_logged_in", controllers.PostCommentsLoggedIn)
 		api.DELETE("/comments", controllers.DeleteComments)
 	}
 
@@ -158,6 +158,18 @@ func main() {
 
 		r.GET("/logout", func(c *gin.Context) {
 			c.HTML(http.StatusOK, "logout_confirm.html", gin.H{})
+		})
+
+		r.GET("/user_mypage", func(c *gin.Context) {
+			user, userFindErr := controllers.FindUserFromSession(c)
+			if userFindErr != nil {
+				c.Redirect(http.StatusSeeOther, "/login")
+				return
+			}
+			c.HTML(http.StatusOK, "user_mypage.html", gin.H{
+				"logged_in": true,
+				"user":      user,
+			})
 		})
 
 		r.GET("/new_comment", controllers.LoginRequired, func(c *gin.Context) {

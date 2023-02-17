@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- Load jquery first, then bootstrap 5 -->
+    <meta charset="UTF-8">
+    <title>My page</title>
+
+    <!-- Load Tailwindcss -->
+    <link href="/static/output.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-800">
+
+    {{ template "navbar" . }}
+
+    <!-- Main contents -->
+    <div class="container-fluid text-center">
+        <div class="flex">
+
+            <!-- Center area -->
+            <div class="flex-1">
+                <h1 class="text-center text-gray-200 text-2xl">Home page</h1>
+                <div class="grid grid-cols-3 gap-4 bg-gray-800">
+                    <div 
+                        class="max-w-sm rounded overflow-hidden shadow-lg bg-gray-800 text-gray-100 hover:bg-gray-600 m-4">
+                        <div class="px-6 py-4">
+                            <h3 class="text-gray-200 font-bold text-xl mb-2">{{- .user.Email }}</h3>
+                        </div>
+                    </div>
+                    {{ if .user.DisplayName }}
+                    <div 
+                        class="max-w-sm rounded overflow-hidden shadow-lg bg-gray-800 text-gray-100 hover:bg-gray-600 m-4">
+                        <div class="px-6 py-4">
+                            <h3 class="text-gray-200 font-bold text-xl mb-2">{{- .user.DisplayName }}</h3>
+                        </div>
+                    </div>
+                    {{ end }}
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
