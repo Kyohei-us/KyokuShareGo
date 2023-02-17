@@ -66,101 +66,114 @@ func main() {
 		api.POST("/login", controllers.UserLogin)
 		api.POST("/login_form", controllers.UserLoginForm)
 
+		// ユーザーログアウト
+		api.POST("/logout", controllers.UserLogout)
+
+		// 全曲取得、IDで曲を取得、曲を追加
 		api.GET("/kyokus", controllers.GetKyokus)
 		api.GET("/kyokus/:id", controllers.GetKyokusById)
 		api.POST("/kyokus", controllers.PostKyokus)
 
+		// 全アーティストを取得、アーティストを追加
 		api.GET("/artists", controllers.GetArtists)
 		api.POST("/artists", controllers.PostArtists)
 
+		// 全コメントを取得、コメントを追加（非ログイン、ログイン）、IDでコメントを削除
 		api.GET("/comments", controllers.GetComments)
 		api.POST("/comments", controllers.PostComments)
 		api.POST("/comments_logged_in", controllers.PostCommentsLoggedIn)
 		api.DELETE("/comments", controllers.DeleteComments)
 	}
 
-	r.GET("/", func(c *gin.Context) {
-		kyokus, err := dbServices.FindAllKyokus()
+	frontend := r.Group("/")
+	frontend.Use()
+	{
+		r.GET("/", func(c *gin.Context) {
+			kyokus, err := dbServices.FindAllKyokus()
 
-		if err != nil {
-			c.HTML(http.StatusBadRequest, "index.html", gin.H{})
-			return
-		}
+			if err != nil {
+				c.HTML(http.StatusBadRequest, "index.html", gin.H{})
+				return
+			}
 
-		session := sessions.Default(c)
-		user := session.Get("gin_session_username")
-		// Not logged in
-		if user == nil {
+			session := sessions.Default(c)
+			user := session.Get("gin_session_username")
+			// Not logged in
+			if user == nil {
+				c.HTML(http.StatusOK, "index.html", gin.H{
+					"kyokus": kyokus,
+				})
+				return
+			}
+
 			c.HTML(http.StatusOK, "index.html", gin.H{
-				"kyokus": kyokus,
+				"kyokus":    kyokus,
+				"logged_in": true,
 			})
-			return
-		}
-
-		c.HTML(http.StatusOK, "index.html", gin.H{
-			"kyokus":    kyokus,
-			"logged_in": true,
 		})
-	})
 
-	r.GET("/kyoku/:id", func(c *gin.Context) {
-		kyoku_id := c.Param("id")
-		kyoku_id_int, ParseIntErr := strconv.Atoi(kyoku_id)
-		if ParseIntErr != nil {
-			c.HTML(http.StatusBadRequest, "kyoku_comments.html", gin.H{})
-			return
-		}
-		kyoku, err := dbServices.FindKyokuById(kyoku_id_int)
-		if err != nil {
-			c.HTML(http.StatusBadRequest, "kyoku_comments.html", gin.H{})
-			return
-		}
+		r.GET("/kyoku/:id", func(c *gin.Context) {
+			kyoku_id := c.Param("id")
+			kyoku_id_int, ParseIntErr := strconv.Atoi(kyoku_id)
+			if ParseIntErr != nil {
+				c.HTML(http.StatusBadRequest, "kyoku_comments.html", gin.H{})
+				return
+			}
+			kyoku, err := dbServices.FindKyokuById(kyoku_id_int)
+			if err != nil {
+				c.HTML(http.StatusBadRequest, "kyoku_comments.html", gin.H{})
+				return
+			}
 
-		comments, err := dbServices.FindComments(&models.CommentQueryString{KyokuId: &kyoku_id_int})
-		if err != nil {
-			c.HTML(http.StatusBadRequest, "kyoku_comments.html", gin.H{})
-			return
-		}
+			comments, err := dbServices.FindComments(&models.CommentQueryString{KyokuId: &kyoku_id_int})
+			if err != nil {
+				c.HTML(http.StatusBadRequest, "kyoku_comments.html", gin.H{})
+				return
+			}
 
-		session := sessions.Default(c)
-		user := session.Get("gin_session_username")
-		if user == nil {
+			session := sessions.Default(c)
+			user := session.Get("gin_session_username")
+			if user == nil {
+				c.HTML(http.StatusOK, "kyoku_comments.html", gin.H{
+					"kyoku":    kyoku,
+					"comments": comments,
+				})
+				return
+			}
+
 			c.HTML(http.StatusOK, "kyoku_comments.html", gin.H{
-				"kyoku":    kyoku,
-				"comments": comments,
+				"kyoku":     kyoku,
+				"comments":  comments,
+				"logged_in": true,
 			})
-			return
-		}
-
-		c.HTML(http.StatusOK, "kyoku_comments.html", gin.H{
-			"kyoku":     kyoku,
-			"comments":  comments,
-			"logged_in": true,
 		})
-	})
 
-	r.GET("/signup", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "signup.html", gin.H{})
-	})
+		r.GET("/signup", func(c *gin.Context) {
+			c.HTML(http.StatusOK, "signup.html", gin.H{})
+		})
 
-	r.GET("/login", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "login.html", gin.H{})
-	})
+		r.GET("/login", func(c *gin.Context) {
+			c.HTML(http.StatusOK, "login.html", gin.H{})
+		})
 
-	r.GET("/logout", controllers.UserLogout)
+		r.GET("/logout", func(c *gin.Context) {
+			c.HTML(http.StatusOK, "logout_confirm.html", gin.H{})
+		})
 
-	r.GET("/new_comment", controllers.LoginRequired, func(c *gin.Context) {
-		kyokuId := c.DefaultQuery("kyoku_id", "")
-		kyokuIdInt, err := strconv.Atoi(kyokuId)
-		if kyokuId != "" && err == nil {
-			c.HTML(http.StatusOK, "new_comment.html", gin.H{
-				"kyokuId": kyokuIdInt,
-			})
-			return
-		}
+		r.GET("/new_comment", controllers.LoginRequired, func(c *gin.Context) {
+			kyokuId := c.DefaultQuery("kyoku_id", "")
+			kyokuIdInt, err := strconv.Atoi(kyokuId)
+			if kyokuId != "" && err == nil {
+				c.HTML(http.StatusOK, "new_comment.html", gin.H{
+					"kyokuId": kyokuIdInt,
+				})
+				return
+			}
 
-		c.HTML(http.StatusOK, "new_comment.html", gin.H{})
-	})
+			c.HTML(http.StatusOK, "new_comment.html", gin.H{})
+		})
+
+	}
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
