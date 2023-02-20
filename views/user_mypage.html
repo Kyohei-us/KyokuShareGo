@@ -56,22 +56,35 @@
 
             <!-- Center area -->
             <div class="flex-1">
-                <h1 class="text-center text-gray-200 text-2xl">Home page</h1>
-                <div class="grid grid-cols-3 gap-4 bg-gray-800">
+                <h1 class="text-center text-gray-200 text-2xl">My page</h1>
+                <div class="grid grid-cols-1 gap-4 bg-gray-800 place-items-center">
                     <div 
-                        class="max-w-sm rounded overflow-hidden shadow-lg bg-gray-800 text-gray-100 hover:bg-gray-600 m-4">
+                        class="w-1/2 max-w-2xl rounded overflow-hidden shadow-lg bg-gray-800 text-gray-100 hover:bg-gray-600 m-4">
                         <div class="px-6 py-4">
                             <h3 class="text-gray-200 font-bold text-xl mb-2">{{- .user.Email }}</h3>
                         </div>
                     </div>
-                    {{ if .user.DisplayName }}
                     <div 
-                        class="max-w-sm rounded overflow-hidden shadow-lg bg-gray-800 text-gray-100 hover:bg-gray-600 m-4">
+                        class="w-1/2 max-w-2xl rounded overflow-hidden shadow-lg bg-gray-800 text-gray-100 hover:bg-gray-600 m-4">
                         <div id="showDisplayName" class="px-6 py-4">
-                            <h3 class="text-gray-200 font-bold text-xl mb-2">{{- .user.DisplayName }}</h3>
+                            <h3 class="text-gray-200 font-bold text-xl mb-2">
+                                {{ if .user.DisplayName }}
+                                {{- .user.DisplayName }}
+                                {{ else }}
+                                ユーザーネームを設定してください。
+                                {{ end }}
+                            </h3>
                         </div>
                         <div id="editDisplayName" class="px-6 py-4" hidden>
-                            <input id="editDisplayNameInput" class="text-gray-600 font-bold text-xl mb-2" value="{{- .user.DisplayName }}" />
+                            {{ if .user.DisplayName }}
+                            <input id="editDisplayNameInput" 
+                                class="text-gray-600 font-bold text-xl mb-2" 
+                                value="{{- .user.DisplayName }}" />
+                            {{ else }}
+                            <input id="editDisplayNameInput" 
+                                class="text-gray-600 font-bold text-xl mb-2" 
+                                value="" />
+                            {{ end }}
                         </div>
                         <button
                             id="editDisplayNameButton"
@@ -81,7 +94,16 @@
                             onclick="postEditedDisplayName()"
                             hidden>Save Change</button>
                     </div>
-                    {{ end }}
+                    <div 
+                        class="w-1/2 max-w-2xl rounded overflow-hidden shadow-lg bg-gray-800 text-gray-100 hover:bg-gray-600 m-4">
+                        <div class="px-6 py-4">
+                            <button 
+                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                                onclick="window.location='/logout';">
+                                ログアウトする
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
