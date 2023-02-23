@@ -187,5 +187,9 @@ func main() {
 
 	}
 
+	r.NoRoute(func(c *gin.Context) {
+		c.HTML(http.StatusNotFound, "404_not_found.html", gin.H{})
+	})
+
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
