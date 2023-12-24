@@ -14,6 +14,8 @@ Users can:
 - read a song to comment on.
 - edit user profile.
 
-## Check out online!
+~~## Check out online!~~
 
-[Link to app](https://kyokusharego.herokuapp.com/)
+~~[Link to app](https://kyokusharego.herokuapp.com/)~~
+Stopped...
+
