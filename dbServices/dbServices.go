@@ -4,6 +4,7 @@ import (
 	"KyokuShareGo/models"
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 
 	"github.com/joho/godotenv"
@@ -15,6 +16,19 @@ import (
 var db *gorm.DB
 
 func ConnectDB() error {
+	// Refer to https://github.com/joho/godotenv/issues/43#issuecomment-503183127
+	re := regexp.MustCompile(`^(.*` + "KyokuShareGo" + `)`)
+	cwd, _ := os.Getwd()
+	rootPath := re.Find([]byte(cwd))
+
+	err := godotenv.Load(string(rootPath) + `/.env`)
+	if err != nil {
+		fmt.Println("Error Loading .env")
+
+		os.Exit(-1)
+	}
+	// Copied code until this line
+
 	godotenv.Load(".env")
 	db_conn_string, ok := os.LookupEnv("DATABASE_URL")
 	if !ok {
