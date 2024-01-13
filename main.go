@@ -4,6 +4,7 @@ import (
 	"KyokuShareGo/controllers"
 	"KyokuShareGo/dbServices"
 	"KyokuShareGo/models"
+	"fmt"
 	"os"
 	"strconv"
 
@@ -15,8 +16,17 @@ import (
 )
 
 func main() {
+	// Read env vars from .env file
+	godotenv.Load(".env")
+	db_conn_string, ok := os.LookupEnv("DATABASE_URL")
+	if !ok {
+		fmt.Println("ERROR: DB Connection String not found")
+		return
+	}
+	dsn := db_conn_string
+
 	// Connect to DB
-	if err := dbServices.ConnectDB(); err != nil {
+	if err := dbServices.ConnectDB(dsn); err != nil {
 		return
 	}
 
@@ -24,7 +34,6 @@ func main() {
 	r := gin.Default()
 
 	// Read env vars from .env file
-	godotenv.Load(".env")
 	sesh_key, KeyOk := os.LookupEnv("SESSION_KEY")
 	sesh_secret, SecretOk := os.LookupEnv("SESSION_SECRET")
 	if !KeyOk || !SecretOk {

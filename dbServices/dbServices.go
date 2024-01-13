@@ -3,11 +3,8 @@ package dbServices
 import (
 	"KyokuShareGo/models"
 	"fmt"
-	"os"
-	"regexp"
 	"strconv"
 
-	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -15,28 +12,7 @@ import (
 
 var db *gorm.DB
 
-func ConnectDB() error {
-	// Refer to https://github.com/joho/godotenv/issues/43#issuecomment-503183127
-	re := regexp.MustCompile(`^(.*` + "KyokuShareGo" + `)`)
-	cwd, _ := os.Getwd()
-	rootPath := re.Find([]byte(cwd))
-
-	err := godotenv.Load(string(rootPath) + `/.env`)
-	if err != nil {
-		fmt.Println("Error Loading .env")
-
-		os.Exit(-1)
-	}
-	// Copied code until this line
-
-	godotenv.Load(".env")
-	db_conn_string, ok := os.LookupEnv("DATABASE_URL")
-	if !ok {
-		fmt.Println("ERROR: DB Connection String not found")
-		err := fmt.Errorf("%s: %s", "ERROR", "DB Connection String not found")
-		return err
-	}
-	dsn := db_conn_string
+func ConnectDB(dsn string) error {
 	db_connection, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err == nil {
