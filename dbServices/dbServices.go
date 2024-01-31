@@ -2,6 +2,7 @@ package dbServices
 
 import (
 	"KyokuShareGo/models"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -83,8 +84,19 @@ func createKyokuWithoutArtist(db *gorm.DB, kyokuTitle string) (models.Kyoku, err
 }
 
 func CreateKyokuForArtist(artistName string, kyokuTitle string) error {
-	artist, err := FindFirstArtistByName(artistName)
-	if err != nil {
+	var artist models.Artist
+	var err error
+	artist, err = FindFirstArtistByName(artistName)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		createArtistError := CreateArtist(artistName)
+		if createArtistError != nil {
+			return createArtistError
+		}
+		artist, err = FindFirstArtistByName(artistName)
+		if err != nil {
+			return err
+		}
+	} else if err != nil {
 		return err
 	}
 

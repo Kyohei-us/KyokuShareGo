@@ -181,6 +181,10 @@ func main() {
 			})
 		})
 
+		r.GET("/new_kyoku", controllers.LoginRequired, func(c *gin.Context) {
+			c.HTML(http.StatusOK, "new_kyoku.html", gin.H{})
+		})
+
 		r.GET("/new_comment", controllers.LoginRequired, func(c *gin.Context) {
 			kyokuId := c.DefaultQuery("kyoku_id", "")
 			kyokuIdInt, err := strconv.Atoi(kyokuId)
