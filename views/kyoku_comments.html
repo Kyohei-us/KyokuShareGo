@@ -14,7 +14,7 @@
         const comment_body = document.getElementById("comment_body").value;
         const kyoku_id = "{{- .kyoku.ID }}";
 
-        fetch('/api/comments_logged_in', { 
+        fetch('/session/comments_logged_in', { 
             method: 'POST',
             body: JSON.stringify({
             "comment_body": comment_body, 
