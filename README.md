@@ -10,12 +10,11 @@ Anyone can do read access.
 For create access, you need to sign up as a user, then login first.
 
 Users can:
+- read/create songs for comments.
 - read/create comments on songs.
-- read a song to comment on.
 - edit user profile.
 
 ~~## Check out online!~~
 
-~~[Link to app](https://kyokusharego.herokuapp.com/)~~
-Stopped...
+[Link to app](https://kyokusharego.onrender.com/)
 
