@@ -182,20 +182,17 @@ func main() {
 		})
 
 		r.GET("/new_kyoku", controllers.LoginRequired, func(c *gin.Context) {
-			c.HTML(http.StatusOK, "new_kyoku.html", gin.H{})
-		})
-
-		r.GET("/new_comment", controllers.LoginRequired, func(c *gin.Context) {
-			kyokuId := c.DefaultQuery("kyoku_id", "")
-			kyokuIdInt, err := strconv.Atoi(kyokuId)
-			if kyokuId != "" && err == nil {
-				c.HTML(http.StatusOK, "new_comment.html", gin.H{
-					"kyokuId": kyokuIdInt,
-				})
+			user, userFindErr := controllers.FindUserFromSession(c)
+			// Not logged in
+			if userFindErr != nil {
+				c.HTML(http.StatusOK, "new_kyoku.html", gin.H{})
 				return
 			}
 
-			c.HTML(http.StatusOK, "new_comment.html", gin.H{})
+			c.HTML(http.StatusOK, "new_kyoku.html", gin.H{
+				"logged_in": true,
+				"user":      user,
+			})
 		})
 
 	}
