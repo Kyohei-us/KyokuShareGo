@@ -10,19 +10,24 @@
 </head>
 
 <script>
-    function postNewKyoku() {
+    async function postNewKyoku() {
         const kyoku_title = document.getElementById("kyoku_title").value;
         const artist_name = document.getElementById("artist_name").value;
 
-        fetch('/api/kyokus', { 
-            method: 'POST',
-            body: JSON.stringify({
-            "kyoku_title": kyoku_title, 
-            "artist_name": artist_name
-        }) })
-            .then((response) => response.json())
-            .then((data) => console.log(data))
-            .catch(error => console.error(error));
+        try {
+            const postKyokuRes = await fetch('/api/kyokus', { 
+                method: 'POST',
+                body: JSON.stringify({
+                "kyoku_title": kyoku_title, 
+                "artist_name": artist_name
+                }) 
+            });
+        } catch(error) {
+            console.error(error)
+        }
+
+        // console.log(postKyokuRes.json())
+        window.location.href = "/";
     }
 </script>
 

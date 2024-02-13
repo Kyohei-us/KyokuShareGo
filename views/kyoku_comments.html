@@ -10,20 +10,23 @@
 </head>
 
 <script>
-    function postNewComment() {
+    async function postNewComment() {
         const comment_body = document.getElementById("comment_body").value;
         const kyoku_id = "{{- .kyoku.ID }}";
 
-        fetch('/session/comments_logged_in', { 
-            method: 'POST',
-            body: JSON.stringify({
-            "comment_body": comment_body, 
-            "kyoku_id": parseInt(kyoku_id)
-        }) })
-            .then((response) => response.json())
-            .then((data) => console.log(data))
-            .catch(error => console.error(error));
-        window.location.replace("/kyoku/" + kyoku_id);
+        try {
+            const postCommentRes = await fetch('/session/comments_logged_in', { 
+                method: 'POST',
+                body: JSON.stringify({
+                "comment_body": comment_body, 
+                "kyoku_id": parseInt(kyoku_id)
+            }) })
+        } catch(error) {
+            console.error(error)
+        }
+
+        // console.log(postCommentRes.json())
+        window.location.href = "/kyoku/" + kyoku_id;
     }
 </script>
 
