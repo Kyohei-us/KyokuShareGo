@@ -14,7 +14,7 @@ Users can:
 - read/create comments on songs.
 - edit user profile.
 
-~~## Check out online!~~
+## Check out online!
 
 [Link to app](https://kyokusharego.onrender.com/)
 
